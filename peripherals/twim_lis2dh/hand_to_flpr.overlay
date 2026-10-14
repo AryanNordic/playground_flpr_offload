@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * Applied to the M33 in the offloaded build only. The FLPR owns i2c21 and the
+ * LIS2DH12 pins (P1.11, P1.12, P1.13). The base board does not enable i2c21 on
+ * the M33; "reserved" records that another core owns it. Keep the M33 off these
+ * pins, and off GPIOTE channels on gpio1 (see the README on GPIOTE sharing).
+ */
+
+&i2c21 {
+	status = "reserved";
+};

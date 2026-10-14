@@ -1,0 +1,54 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+# Workload selection, shared by the M33 image (Kconfig) and the FLPR image
+# (remote/Kconfig). Do not set these by hand: sysbuild.cmake sets them on every
+# image from the two build knobs, -DOFFLOAD_PERIPHERAL=<folder> and
+# -DOFFLOAD_TRIGGER=timer|interrupt, together with that folder's devicetree and
+# conf fragment. Keeping one pair of knobs is what keeps the source, the
+# devicetree and the driver configuration of a build in step.
+
+config APP_PERIPHERAL
+	string "Peripheral the workload drives"
+	default "saadc"
+	help
+	  Name of a folder under peripherals/. The image that runs the workload
+	  links peripherals/<name>/<name>_poll.c or <name>_irq.c when that file
+	  exists.
+
+choice APP_TRIGGER
+	prompt "What starts a batch"
+	default APP_TRIGGER_TIMER
+
+config APP_TRIGGER_TIMER
+	bool "Timer: the core wakes on a period and reads the peripheral"
+
+config APP_TRIGGER_INTERRUPT
+	bool "Interrupt: the core sleeps until the peripheral has a batch"
+	help
+	  The backend also provides workload_wait() and workload_stop(), see
+	  common/workload.h.
+
+endchoice
+
+config APP_SENSOR_ACCEL
+	bool "Accelerometer backend on the Zephyr sensor API"
+	help
+	  Links peripherals/shared/sensor_accel.c as the workload backend. The conf
+	  fragments of the accelerometer folders (twim_lis2dh, spim_adxl362)
+	  enable it. The code does not depend on the sensor model or on the
+	  bus, so any accelerometer with a Zephyr sensor driver can reuse it
+	  with only a new devicetree overlay and conf fragment.
+
+config APP_RAW_CHANNELS
+	int "Interleaved int16_t channels in one raw batch"
+	range 1 16
+	default 1
+	help
+	  How the example processing in app/workload_process.c reads the raw
+	  batch: 1 for the SAADC, 3 (x, y, z) for the accelerometers. The
+	  peripheral folder's conf fragments set it. Your own processing is free
+	  to ignore it.

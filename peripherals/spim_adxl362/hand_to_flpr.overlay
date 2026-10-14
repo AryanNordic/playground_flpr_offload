@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * Applied to the M33 in the offloaded build only. The FLPR owns spi22 and the
+ * ADXL362 pins (P3.0 to P3.3, P1.14). The base board does not enable spi22 on
+ * the M33; "reserved" records that another core owns it. Keep the M33 off these
+ * pins, and off GPIOTE channels on gpio1 and gpio3 (see the README on GPIOTE
+ * sharing).
+ */
+
+&spi22 {
+	status = "reserved";
+};

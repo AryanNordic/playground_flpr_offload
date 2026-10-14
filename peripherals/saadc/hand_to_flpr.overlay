@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * Applied to the M33 in the offloaded build only. The base board enables the
+ * SAADC on the M33; marking it "reserved" (Nordic's convention for a peripheral
+ * owned by another domain, as in the nRF54H20 idle_adc benchmark) keeps the M33
+ * from driving it, so the peripheral and its driver belong to the FLPR image.
+ *
+ * The SAADC interrupt line (213) is the same number in the FLPR and application
+ * MDK headers, so the FLPR image inherits the correct vector with no override.
+ */
+
+&adc {
+	status = "reserved";
+};

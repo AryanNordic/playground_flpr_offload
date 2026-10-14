@@ -1,0 +1,92 @@
+sample:
+  name: FLPR offload template
+  description: >
+    Template for moving a workload and its dependencies from the Cortex-M33 to
+    the FLPR, with instrumentation to measure the result. Builds either fully on
+    the M33 or offloaded to the FLPR from the same source.
+
+common:
+  sysbuild: true
+  tags:
+    - ipc
+    - flpr
+    - multicore
+  harness: console
+  harness_config:
+    type: multi_line
+    ordered: false
+    regex:
+      - "FLPR offload sample"
+      - "M33 active .* \\| (?!0 results)[0-9.]+ results/s"
+
+  platform_allow:
+    - nrf54lm20dk/nrf54lm20b/cpuapp
+  integration_platforms:
+    - nrf54lm20dk/nrf54lm20b/cpuapp
+
+# The SAADC and compute_only run on a bare DK. The accelerometer tests are build-only: they need
+# the sensor wired to the DK (pins in each peripherals/<name>/peripheral.overlay).
+tests:
+  sample.flpr_offload.offloaded:
+    extra_args:
+      - OFFLOAD_PERIPHERAL=saadc
+  sample.flpr_offload.interrupt:
+    extra_args:
+      - OFFLOAD_PERIPHERAL=saadc
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.local:
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=saadc
+  sample.flpr_offload.local.interrupt:
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=saadc
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.lis2dh.offloaded:
+    build_only: true
+    extra_args:
+      - OFFLOAD_PERIPHERAL=twim_lis2dh
+  sample.flpr_offload.lis2dh.interrupt:
+    build_only: true
+    extra_args:
+      - OFFLOAD_PERIPHERAL=twim_lis2dh
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.lis2dh.local:
+    build_only: true
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=twim_lis2dh
+  sample.flpr_offload.lis2dh.local.interrupt:
+    build_only: true
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=twim_lis2dh
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.adxl362.offloaded:
+    build_only: true
+    extra_args:
+      - OFFLOAD_PERIPHERAL=spim_adxl362
+  sample.flpr_offload.adxl362.interrupt:
+    build_only: true
+    extra_args:
+      - OFFLOAD_PERIPHERAL=spim_adxl362
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.adxl362.local:
+    build_only: true
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=spim_adxl362
+  sample.flpr_offload.adxl362.local.interrupt:
+    build_only: true
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=spim_adxl362
+      - OFFLOAD_TRIGGER=interrupt
+  sample.flpr_offload.compute_only.offloaded:
+    extra_args:
+      - OFFLOAD_PERIPHERAL=compute_only
+  sample.flpr_offload.compute_only.local:
+    extra_args:
+      - FILE_SUFFIX=local
+      - OFFLOAD_PERIPHERAL=compute_only

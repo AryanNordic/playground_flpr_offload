@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * ADXL362 accelerometer on SPIM (spi22), applied to the core that runs the
+ * workload: the FLPR when offloaded, the M33 in the local baseline.
+ *
+ * spi22 is the DK's expansion SPI (nordic_expansion_spi), with its pins and chip
+ * select already defined by the board on both cores:
+ *   SCK P3.3, MOSI P3.0, MISO P3.1, CS P3.2
+ *   INT1 P1.14   (a free GPIO chosen for this sample; not checked against the
+ *                 DK schematic, move it if your board uses the pin)
+ * The board files note that spi22 "conflicts with UART30". In this DK's pinctrl
+ * they are separate instances on separate pins (UART30 on P0.6 to P0.9, spi22 on
+ * P3.0 to P3.3), and the FLPR keeps uart30 as its console. Not yet checked on
+ * hardware.
+ * 4 MHz is well inside the ADXL362 limit; lower it for long wires.
+ */
+
+/ {
+	aliases {
+		offload-peripheral = &offload_accel;
+	};
+};
+
+&spi22 {
+	status = "okay";
+
+	offload_accel: adxl362@0 {
+		compatible = "adi,adxl362";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(4)>;
+		int1-gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+	};
+};

@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+# Application Kconfig for the FLPR (remote) image. The two images have separate
+# Kconfig scopes; the workload selection is defined once in
+# common/Kconfig.workload and sysbuild.cmake sets it on both.
+
+menu "FLPR offload workload"
+rsource "../common/Kconfig.workload"
+endmenu
+
+source "Kconfig.zephyr"

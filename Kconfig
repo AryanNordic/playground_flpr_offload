@@ -1,0 +1,44 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+menu "FLPR offload sample"
+
+config APP_OFFLOAD
+	bool "Run the workload on the FLPR"
+	default y
+	help
+	  When enabled the workload and its transport run on the FLPR and the
+	  Cortex-M33 only receives results. When disabled the same workload runs
+	  on the Cortex-M33 and no FLPR image is built. Use the "local" file
+	  suffix to select the disabled configuration from the same source.
+
+config APP_ITERATIONS
+	int "Batches to run (0 runs continuously)"
+	default 0
+	help
+	  Number of batches the workload runs before stopping. Zero runs
+	  continuously, which is the usual mode for measuring steady-state load
+	  and power.
+
+config APP_SAMPLE_INTERVAL_MS
+	int "Delay between batches in milliseconds (0 samples continuously)"
+	default 100
+	help
+	  Timer-based sampling cadence: the workload acquires and processes one
+	  batch, then waits this long before the next. Zero removes the wait and
+	  runs back to back, which is the throughput / compute-bound mode. In the
+	  offloaded build the M33 passes this value to the FLPR. The interrupt
+	  trigger ignores it: the peripheral sets the rate.
+
+config APP_REPORT_INTERVAL_MS
+	int "Measurement report interval in milliseconds"
+	default 1000
+
+rsource "common/Kconfig.workload"
+
+endmenu
+
+source "Kconfig.zephyr"

@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * Local baseline. The workload runs on the M33, so there is no FLPR launch and
+ * no inter-core transport: the SRAM stays whole. sysbuild.cmake adds
+ * peripherals/<name>/peripheral.overlay to this image, the same overlay the FLPR
+ * gets in the offloaded build, so both cores drive an identical peripheral setup.
+ */
+
+/ {
+	aliases {
+		offload-marker = &led0;
+	};
+};

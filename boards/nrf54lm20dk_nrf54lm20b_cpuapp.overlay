@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * M33 side of the offloaded build. This overlay does two things:
+ *   1. Launches the FLPR: it points the VPR launcher at the FLPR code partition
+ *      in RRAM (source) and the FLPR execution SRAM (destination), and shrinks
+ *      the application SRAM so the top 96 KB belongs to the FLPR and the 4 KB
+ *      below it to the IPC.
+ *   2. Sets up the ICMsg transport: two small shared-memory regions plus the
+ *      vevif mailboxes that signal the other core.
+ *
+ * The FLPR execution region is the top 96 KB of SRAM. On this DK that is the
+ * default FLPR carve. The two IPC regions sit directly below it, still reachable
+ * by both cores.
+ *
+ * Nothing here depends on the peripheral. sysbuild.cmake adds
+ * peripherals/<name>/hand_to_flpr.overlay, which hands that peripheral over.
+ */
+
+/ {
+	aliases {
+		offload-marker = &led0;
+	};
+
+	soc {
+		reserved-memory {
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			cpuflpr_code_partition: image@1e5000 {
+				reg = <0x1e5000 DT_SIZE_K(96)>;
+			};
+
+			sram_rx: memory@20066c00 {
+				reg = <0x20066c00 0x800>;
+			};
+
+			sram_tx: memory@20067400 {
+				reg = <0x20067400 0x800>;
+			};
+		};
+
+		cpuflpr_sram_code_data: memory@20067c00 {
+			compatible = "mmio-sram";
+			reg = <0x20067c00 DT_SIZE_K(96)>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges = <0x0 0x20067c00 DT_SIZE_K(96)>;
+		};
+
+		ipc {
+			ipc0: ipc0 {
+				compatible = "zephyr,ipc-icmsg";
+				dcache-alignment = <32>;
+				tx-region = <&sram_tx>;
+				rx-region = <&sram_rx>;
+				mboxes = <&cpuapp_vevif_rx 20>, <&cpuapp_vevif_tx 21>;
+				mbox-names = "rx", "tx";
+				status = "okay";
+			};
+		};
+	};
+};
+
+/* M33 RAM ends where the IPC regions start, so it never overlaps them. */
+&cpuapp_sram {
+	reg = <0x20000000 DT_SIZE_K(411)>;
+	ranges = <0x0 0x20000000 DT_SIZE_K(411)>;
+};
+
+&cpuflpr_vpr {
+	status = "okay";
+	execution-memory = <&cpuflpr_sram_code_data>;
+	source-memory = <&cpuflpr_code_partition>;
+};
+
+&cpuapp_vevif_rx {
+	status = "okay";
+};
+
+&cpuapp_vevif_tx {
+	status = "okay";
+};
